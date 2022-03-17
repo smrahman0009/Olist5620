@@ -75,4 +75,4 @@ order_dt["order_delay"] = difftime(order_dt$order_estimated_delivery_date ,order
 colnames(order_dt)
 head(order_dt$order_delay)
 plot(order_dt$carrier_delivered_interval,order_dt$order_delay) 
-
+# 
