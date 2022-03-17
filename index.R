@@ -50,3 +50,29 @@ head(order_dt)
 
 typeof(order_dt$order_purchase_timestamp)
 class(order_dt$order_purchase_timestamp)
+
+# approval_time is time difference between the purchase time of the product  and the time taken to approve the order from the seller.
+
+order_dt["approval_delay"] = difftime(order_dt$order_approved_at,order_dt$order_purchase_timestamp,units="hours")
+
+colnames(order_dt)
+
+head(order_dt)
+
+# Order status column have only one value, So I am going to drop it now.
+
+order_dt$order_status <- NULL
+
+# Shows the order posting timestamp. When it was handled to the logistic partner.
+
+# carrier_delivered_interval is the time it was taken to be handled to the logistic partner after its approval by the seller.
+
+order_dt["carrier_delay"] = difftime(order_dt$order_delivered_carrier_date ,order_dt$order_approved_at,units="hours")
+
+# order_delay is the time difference of the actual delivery time - the expected delivery date
+
+order_dt["order_delay"] = difftime(order_dt$order_estimated_delivery_date ,order_dt$order_delivered_customer_date,units="days")
+colnames(order_dt)
+head(order_dt$order_delay)
+plot(order_dt$carrier_delivered_interval,order_dt$order_delay) 
+
