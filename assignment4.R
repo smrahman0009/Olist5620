@@ -34,26 +34,37 @@ library(ISLR)
 library(caret)
 library(rpart)
 library(rpart.plot)
+# help(Carseats)
 
 head(Carseats)
 
 Carseats$sales_target <- ifelse(Carseats$Sales  > 8,TRUE,FALSE)
 
+# Split the datasets randomly 
+set.seed(3456)
+trainIndex <- createDataPartition(Carseats$sales_target, p = .8,
+                                  list = FALSE,
+                                  times = 1)
+# create train and test datasets
+train.Carseats <-Carseats[trainIndex,]
+test.Carseats <-Carseats[-trainIndex,]
 
-head(Carseats)
-dt = sort(sample(nrow(Carseats), nrow(Carseats)*.7))
-
-train.Carseats <-Carseats[dt,]
-test.Carseats <-Carseats[-dt,]
-
+# 
 train.Carseats$Sales <- NULL
 test.Carseats$Sales <- NULL
 
-train_carseats_tree <- rpart(sales_target~.,data = train.Carseats)
-test_carseats_tree <- rpart(sales_target~.,data = test.Carseats)
+model.rpart <- rpart(sales_target~.,data = train.Carseats,method = "class")
+summary(model.rpart)
 
-rpart.plot(train_carseats_tree)
-rpart.plot(test_carseats_tree)
+rpart.plot(model.rpart)
 
-head(train.Carseats)
-# rm(Carseats)
+
+pred.rpart = predict(model.rpart,test.Carseats,type = "class")
+
+acc = sum(pred.rpart == test.Carseats$sales_target)/nrow(test.Carseats)
+
+print(acc)
+
+
+
+colnames(test.Carseats)
