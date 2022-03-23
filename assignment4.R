@@ -33,10 +33,11 @@ install.packages("rpart")
 library(ISLR)
 library(caret)
 library(rpart)
+library(rpart.plot)
 
 head(Carseats)
 
-Carseats$Target <- ifelse(Carseats$Sales  > 8,TRUE,FALSE)
+Carseats$sales_target <- ifelse(Carseats$Sales  > 8,TRUE,FALSE)
 
 
 head(Carseats)
@@ -45,6 +46,14 @@ dt = sort(sample(nrow(Carseats), nrow(Carseats)*.7))
 train.Carseats <-Carseats[dt,]
 test.Carseats <-Carseats[-dt,]
 
+train.Carseats$Sales <- NULL
+test.Carseats$Sales <- NULL
 
-head(test.Carseats)
+train_carseats_tree <- rpart(sales_target~.,data = train.Carseats)
+test_carseats_tree <- rpart(sales_target~.,data = test.Carseats)
+
+rpart.plot(train_carseats_tree)
+rpart.plot(test_carseats_tree)
+
+head(train.Carseats)
 # rm(Carseats)
