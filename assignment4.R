@@ -26,14 +26,17 @@ gun.lme = lme(rounds~Physique,data = Gun)
 summary(gun.lme)
 # 
 # ##################### ___QUESTION_5______ #####################
-install.packages("ISLR")
-install.packages("caret")
-install.packages("rpart")
-
+# install.packages("ISLR")
+# install.packages("caret")
+# install.packages("rpart")
+# install.packages("tree")
+# install.packages("randomForest")
+library(randomForest)
 library(ISLR)
 library(caret)
 library(rpart)
 library(rpart.plot)
+
 # help(Carseats)
 
 head(Carseats)
@@ -65,6 +68,43 @@ acc = sum(pred.rpart == test.Carseats$sales_target)/nrow(test.Carseats)
 
 print(acc)
 
+# ########################   ____QUESTION__5__C____ #################################
+train.Carseats$sales_target <- as.character(train.Carseats$sales_target)
+train.Carseats$sales_target <- as.factor(train.Carseats$sales_target)
+
+model.forest <- randomForest(sales_target~.,data = train.Carseats)
+
+pred.forest = predict(model.forest,test.Carseats,type = "class")
+
+acc = sum(pred.forest  == test.Carseats$sales_target)/nrow(test.Carseats)
+
+print(acc)
+print(test.Carseats)
+# rm(train.Carseats)
+# rm(test.Carseats)
+# rm(Carseats)
+# #######################################
+
+pred.rpart.train = predict(model.rpart,train.Carseats,type = "class")
+
+acc.train = sum(pred.rpart.train == train.Carseats$sales_target)/nrow(train.Carseats)
+
+print(acc.train)
+
+# ############################ ____Question__5__b_____ #######################
+# cp= model.rpart$cptable[which.min(model.rpart$cptable[,"xerror"]),"CP"]
+# I am using the printcp() to examine the cross-validation error results. I am using this fragment of code to select
+# the to automatically select the complexity parameter associated with the smallest cross-validation error. 
+
+pruned.rpart<- prune(model.rpart, cp= model.rpart$cptable[which.min(model.rpart$cptable[,"xerror"]),"CP"])
+pred.pruned.rpart = predict(pruned.rpart,test.Carseats,type = "class")
+pruned.test.acc = sum(pred.pruned.rpart == test.Carseats$sales_target)/nrow(test.Carseats)
+print(pruned.test.acc)
 
 
-colnames(test.Carseats)
+pruned.rpart<- prune(model.rpart, cp= model.rpart$cptable[which.min(model.rpart$cptable[,"xerror"]),"CP"])
+pred.pruned.rpart = predict(pruned.rpart,train.Carseats,type = "class")
+pruned.train.acc = sum(pred.pruned.rpart == train.Carseats$sales_target)/nrow(train.Carseats)
+print(pruned.train.acc)
+
+

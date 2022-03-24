@@ -95,4 +95,12 @@ nrow(order_df$carrier_delivered_interval)
 plot(order_df$carrier_delay,order_df$order_delay) 
 
 
+##### testing and splitting datasets code #################
 # 
+# 
+# set.seed(3456)
+# trainIndex <- createDataPartition(Carseats$sales_target, p = .8,
+#                                   list = FALSE,
+#                                   times = 1)
+# train.Carseats <-Carseats[trainIndex,]
+# test.Carseats <-Carseats[-trainIndex,]
