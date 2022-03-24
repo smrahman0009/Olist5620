@@ -108,3 +108,15 @@ pruned.train.acc = sum(pred.pruned.rpart == train.Carseats$sales_target)/nrow(tr
 print(pruned.train.acc)
 
 
+####################### ______QUESTION__2__a____ #####################################
+library(gamair)
+data(hubble)
+head(hubble,10)
+summary(hubble)
+
+hub.mod <-gam(y~s(x), data=hubble)
+
+summary(hub.mod)
+
+plot(hubble$x,hubble$y,xlab="Distance", ylab="Velocity")
+abline(0,hub.mod$coefficients, col="blue")
