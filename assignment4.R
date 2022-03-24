@@ -96,6 +96,7 @@ print(acc.train)
 # I am using the printcp() to examine the cross-validation error results. I am using this fragment of code to select
 # the to automatically select the complexity parameter associated with the smallest cross-validation error. 
 
+# printcp()
 pruned.rpart<- prune(model.rpart, cp= model.rpart$cptable[which.min(model.rpart$cptable[,"xerror"]),"CP"])
 pred.pruned.rpart = predict(pruned.rpart,test.Carseats,type = "class")
 pruned.test.acc = sum(pred.pruned.rpart == test.Carseats$sales_target)/nrow(test.Carseats)
@@ -109,14 +110,23 @@ print(pruned.train.acc)
 
 
 ####################### ______QUESTION__2__a____ #####################################
+install.packages("gamir")
+install.packages("ISLR")
+install.packages("mgcv")
 library(gamair)
+library(mgcv)
+library(ISLR)
 data(hubble)
 head(hubble,10)
 summary(hubble)
 
-hub.mod <-gam(y~s(x), data=hubble)
+hub.mod <-gam(y~s(x), data=hubble,method="REML")
+
+# par(mfrow = c(2, 2))
+# gam.check(hub.mod)
 
 summary(hub.mod)
+plot(hub.mod)
 
 plot(hubble$x,hubble$y,xlab="Distance", ylab="Velocity")
 abline(0,hub.mod$coefficients, col="blue")
