@@ -64,35 +64,55 @@ head(order_df)
 
 typeof(order_df$order_purchase_timestamp)
 class(order_df$order_purchase_timestamp)
-# approval_time is time difference between the purchase time of the product  and the time taken to approve the order from the seller.
+# approval_delay is time difference between the purchase time of the product  and the time taken to approve the order from the seller.
 order_df["approval_delay"] = difftime(order_df$order_approved_at,order_df$order_purchase_timestamp,units="hours")
 # ?boxplot
+
+boxplot(order_df["approval_delay"])
+
+# There are outliers. I will delete the approval_delay whose values are more than 150 hours. 
+order_df = order_df %>% filter(order_df$approval_delay < 150)
 boxplot(order_df["approval_delay"])
 
 
 
-
-# Order status column have only one value, So I am going to drop it now.
+# Order status column have only one value which is order_status, So I am going to drop it now.
 order_df$order_status <- NULL
 # Shows the order posting timestamp. When it was handled to the logistic partner.
-# carrier_delivered_interval is the time it was taken to be handled to the logistic partner after its approval by the seller.
+# carrier_delay is the time it was taken to be handled to the logistic partner after its approval by the seller.
 
 order_df["carrier_delay"] = difftime(order_df$order_delivered_carrier_date ,order_df$order_approved_at,units="hours")
 
 boxplot(order_df["carrier_delay"])
 # carrier_delay has some negative values those are not possible at all. I am going to filter out the negative values
-order_df = order_df %>% filter(order_df$carrier_delay > 0)
+order_df = order_df %>% filter(order_df$carrier_delay > 0 & order_df$carrier_delay <800)
 
-boxplot(order_df["carrier_delay"])
+boxplot(order_df["carrier_delay"],main = "carrier delay in hours")
 
 
 # order_delay is the time difference of the actual delivery time - the expected delivery date
 order_df["order_delay"] = difftime(order_df$order_estimated_delivery_date ,order_df$order_delivered_customer_date,units="days")
+boxplot(order_df['order_delay'], main="order delayed in days")
+# I will consider +50 and -150 days as outliers and remove them to get more precise models
+
+order_df = order_df %>% filter(order_df$order_delay > -150 & order_df$order_delay <50)
+boxplot(order_df['order_delay'], main="order delayed in days")
+
+
+ 
+order_df['late_delivery'] <- ifelse(order_df['order_delay']  <= 0,"no","yes")
+
+table(order_df['late_delivery']) / nrow(order_df['late_delivery']) *100
+summary(order_df)
+
+ggplot(data=order_df,aes(x=late_delivery))+
+  geom_bar(stat = "count")
+
+# par(mfrow=c(1,2))
+
 colnames(order_df)
-head(order_df$order_delay)
-nrow(order_df$order_delay)
-nrow(order_df$carrier_delivered_interval)
-plot(order_df$carrier_delay,order_df$order_delay) 
+table(order_df$late_delivery)
+
 
 
 ##### testing and splitting datasets code #################
@@ -104,3 +124,25 @@ plot(order_df$carrier_delay,order_df$order_delay)
 #                                   times = 1)
 # train.Carseats <-Carseats[trainIndex,]
 # test.Carseats <-Carseats[-trainIndex,]
+
+
+model_df = order_df
+model_df$late_delivery = as.factor(model_df$late_delivery)
+
+glm.model = glm(data = model_df,late_delivery~.,family = binomial())
+
+
+
+
+?glm
+
+
+
+
+head(order_df$order_delay)
+nrow(order_df$order_delay)
+nrow(order_df$carrier_delivered_interval)
+plot(order_df$carrier_delay,order_df$order_delay) 
+
+
+
