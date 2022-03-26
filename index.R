@@ -1,8 +1,11 @@
 # install.packages("ggplot2")
 # install.packages("tidyverse")
+# install.packages("ROSE")
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(caret)
+
 
 # order_df <- read.csv(file ='./db/orders_dataset.csv',sep=";",header=TRUE)
 # points:- in which years, month the late delivery occours most. Is there any pattern? 
@@ -111,22 +114,41 @@ ggplot(data=order_df,aes(x=late_delivery))+
 # par(mfrow=c(1,2))
 
 colnames(order_df)
-table(order_df$late_delivery)
+prop.table(table(order_df$late_delivery))
+
+
+
+# ################### Undersampling   #####################################
+
+# Index of the values with Yes and NO
+# Sample the indices
+# Create a new dataset with the sampled indices
+
+Yes <- which(order_df$late_delivery == "yes")
+No <- which(order_df$late_delivery == "no")
+
+
+df_balanced <- ovun.sample(late_delivery ~ ., data=order_df,method="over",N=8086)
 
 
 
 ##### testing and splitting datasets code #################
-# 
-# 
-# set.seed(3456)
-# trainIndex <- createDataPartition(Carseats$sales_target, p = .8,
-#                                   list = FALSE,
-#                                   times = 1)
-# train.Carseats <-Carseats[trainIndex,]
-# test.Carseats <-Carseats[-trainIndex,]
 
 
-model_df = order_df
+
+
+set.seed(3456)
+partion_index <- createDataPartition(order_df$late_delivery, p = .8,
+                                  list = FALSE,
+                                  times = 1)
+df <-order_df[partion_index,]
+model_df <-order_df[-partion_index,]
+
+ggplot(data=model_df,aes(x=late_delivery))+
+  geom_bar(stat = "count")
+
+
+# model_df = order_df
 model_df$late_delivery = as.factor(model_df$late_delivery)
 
 glm.model = glm(data = model_df,late_delivery~.,family = binomial())
@@ -145,4 +167,4 @@ nrow(order_df$carrier_delivered_interval)
 plot(order_df$carrier_delay,order_df$order_delay) 
 
 
-
+summary(orders_dataset)
