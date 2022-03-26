@@ -8,11 +8,41 @@ library(caret)
 library(rpart)
 library(rpart.plot)
 
-
-# olist_df <- read.csv(file ='./db/orders_dataset.csv',sep=";",header=TRUE)
-# points:- in which years, month the late delivery occours most. Is there any pattern? 
-
+######################## Loading && JOINING ALL OLIST DATASETS ##############################
 orders_dataset <- read.csv(file ='./db/orders_dataset.csv',header=TRUE)
+customers_dataset <- read.csv(file ='./db/customers_dataset.csv',header=TRUE)
+order_items_dataset <- read.csv(file ='./db/order_items_dataset.csv',header=TRUE)
+products_dataset <- read.csv(file ='./db/products_dataset.csv',header=TRUE)
+sellers_dataset <- read.csv(file ='./db/sellers_dataset.csv',header=TRUE)
+
+
+# geolocations datasets is not required as sellers_dataset and products_dataset already contains sellers and customers geolocations. 
+
+
+## merge_syntax merge(x, y, by.x, by.y,all.x,all.y, sort = TRUE)
+
+# olist_df_test = merge(x=olist_df_test,y=sellers_dataset,by="seller_id")
+
+# save the new merged olist datasets as olist_df_test
+write.csv(olist_df_test,"./db/olist_df_test.csv", row.names = FALSE)
+
+olist_df_test_2 <- read.csv(file ='./db/olist_df_test.csv',header=TRUE)
+
+
+
+head(olist_df_test_2,4)
+# Checking the instances of null values in the newly created dataset. 
+is.null(olist_df_test_2)
+
+summary(olist_df_test_2)
+nrow(olist_df_test)
+ncol(olist_df_test)
+colnames(olist_df_test)
+
+
+
+######################################################################
+
 colnames(orders_dataset)
 # order_id and customer_id is not necessary 
 olist_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
