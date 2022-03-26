@@ -135,7 +135,7 @@ boxplot(olist_df['order_delay'], main="order delayed in days")
 
 
  
-olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  <= 0,"no","yes")
+olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  < 0,"yes","no")
 
 table(olist_df['late_delivery']) / nrow(olist_df['late_delivery']) *100
 summary(olist_df)
