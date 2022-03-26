@@ -126,35 +126,42 @@ prop.table(table(order_df$late_delivery))
 
 Yes <- which(order_df$late_delivery == "yes")
 No <- which(order_df$late_delivery == "no")
+length(No)
 
 
-df_balanced <- ovun.sample(late_delivery ~ ., data=order_df,method="over",N=8086)
+no_sampled_index <- sample(Yes,length(No))
+df_balanced <- order_df[c(no_sampled_index,No),]
+
+table(df_balanced$late_delivery)
 
 
-
+df_balanced$late_delivery = as.factor(df_balanced$late_delivery)
 ##### testing and splitting datasets code #################
 
 
-
-
 set.seed(3456)
-partion_index <- createDataPartition(order_df$late_delivery, p = .8,
+partion_index <- createDataPartition(df_balanced$late_delivery, p = .8,
                                   list = FALSE,
                                   times = 1)
-df <-order_df[partion_index,]
-model_df <-order_df[-partion_index,]
+train_df <-df_balanced[partion_index,]
+test_df <-df_balanced[-partion_index,]
 
-ggplot(data=model_df,aes(x=late_delivery))+
-  geom_bar(stat = "count")
+train_df$order_delay <- NULL
+test_df$order_delay <- NULL 
 
-
-# model_df = order_df
-model_df$late_delivery = as.factor(model_df$late_delivery)
-
-glm.model = glm(data = model_df,late_delivery~.,family = binomial())
+# ggplot(data=model_df,aes(x=late_delivery))+
+#   geom_bar(stat = "count")
 
 
+################## modeling_part ############################
+###################### rpart #################################
 
+colnames(train_df)
+
+glm.model = glm(data = df_balanced,late_delivery~.,family = binomial())
+
+
+summary(glm.model)
 
 ?glm
 
