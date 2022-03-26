@@ -5,23 +5,25 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(caret)
+library(rpart)
+library(rpart.plot)
 
 
-# order_df <- read.csv(file ='./db/orders_dataset.csv',sep=";",header=TRUE)
+# olist_df <- read.csv(file ='./db/orders_dataset.csv',sep=";",header=TRUE)
 # points:- in which years, month the late delivery occours most. Is there any pattern? 
 
 orders_dataset <- read.csv(file ='./db/orders_dataset.csv',header=TRUE)
 colnames(orders_dataset)
 # order_id and customer_id is not necessary 
-order_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
+olist_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
 
 
 
-summary(order_df)
-sum(is.na(order_df))
-mean(is.na(order_df))
-order_df = na.omit(order_df)
-summary(order_df)
+summary(olist_df)
+sum(is.na(olist_df))
+mean(is.na(olist_df))
+olist_df = na.omit(olist_df)
+summary(olist_df)
 
 
 # order_estimated_delivery_date = Shows the estimated delivery date that was informed to customer at the purchase moment.
@@ -32,18 +34,18 @@ summary(order_df)
 
 
 
-head(order_df)
-unique(order_df["order_status"])
-ggplot(data=order_df,aes(x=order_status))+
+head(olist_df)
+unique(olist_df["order_status"])
+ggplot(data=olist_df,aes(x=order_status))+
   geom_bar(stat = "count")
 
 
 
 
 # As I am planning only to find out the late delivery thats why I am going to drop outhers value from order_status
-order_df = filter(order_df, order_status %in% c("delivered"))
-unique(order_df["order_status"])
-head(order_df)
+olist_df = filter(olist_df, order_status %in% c("delivered"))
+unique(olist_df["order_status"])
+head(olist_df)
 
 
 
@@ -55,66 +57,66 @@ head(order_df)
 # %y -> 2-digit year
 # %Y -> 4-digit year
 
-# Now I am going to convert the Date related columns to DateTime format in order_df dataframe 
-order_df$order_purchase_timestamp <- as.POSIXct(order_df$order_purchase_timestamp, format = "%Y-%m-%d %H:%M:%S")
-order_df$order_approved_at <- as.POSIXct(order_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
-order_df$order_approved_at <- as.POSIXct(order_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
-order_df$order_delivered_carrier_date <- as.POSIXct(order_df$order_delivered_carrier_date, format = "%Y-%m-%d %H:%M:%S")
-order_df$order_delivered_customer_date <- as.POSIXct(order_df$order_delivered_customer_date, format = "%Y-%m-%d %H:%M:%S")
-order_df$order_estimated_delivery_date <- as.POSIXct(order_df$order_estimated_delivery_date, format = "%Y-%m-%d %H:%M:%S")
+# Now I am going to convert the Date related columns to DateTime format in olist_df dataframe 
+olist_df$order_purchase_timestamp <- as.POSIXct(olist_df$order_purchase_timestamp, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_approved_at <- as.POSIXct(olist_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_approved_at <- as.POSIXct(olist_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_delivered_carrier_date <- as.POSIXct(olist_df$order_delivered_carrier_date, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_delivered_customer_date <- as.POSIXct(olist_df$order_delivered_customer_date, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_estimated_delivery_date <- as.POSIXct(olist_df$order_estimated_delivery_date, format = "%Y-%m-%d %H:%M:%S")
 
-head(order_df)
+head(olist_df)
 
-typeof(order_df$order_purchase_timestamp)
-class(order_df$order_purchase_timestamp)
+typeof(olist_df$order_purchase_timestamp)
+class(olist_df$order_purchase_timestamp)
 # approval_delay is time difference between the purchase time of the product  and the time taken to approve the order from the seller.
-order_df["approval_delay"] = difftime(order_df$order_approved_at,order_df$order_purchase_timestamp,units="hours")
+olist_df["approval_delay"] = difftime(olist_df$order_approved_at,olist_df$order_purchase_timestamp,units="hours")
 # ?boxplot
 
-boxplot(order_df["approval_delay"])
+boxplot(olist_df["approval_delay"])
 
 # There are outliers. I will delete the approval_delay whose values are more than 150 hours. 
-order_df = order_df %>% filter(order_df$approval_delay < 150)
-boxplot(order_df["approval_delay"])
+olist_df = olist_df %>% filter(olist_df$approval_delay < 150)
+boxplot(olist_df["approval_delay"])
 
 
 
 # Order status column have only one value which is order_status, So I am going to drop it now.
-order_df$order_status <- NULL
+olist_df$order_status <- NULL
 # Shows the order posting timestamp. When it was handled to the logistic partner.
 # carrier_delay is the time it was taken to be handled to the logistic partner after its approval by the seller.
 
-order_df["carrier_delay"] = difftime(order_df$order_delivered_carrier_date ,order_df$order_approved_at,units="hours")
+olist_df["carrier_delay"] = difftime(olist_df$order_delivered_carrier_date ,olist_df$order_approved_at,units="hours")
 
-boxplot(order_df["carrier_delay"])
+boxplot(olist_df["carrier_delay"])
 # carrier_delay has some negative values those are not possible at all. I am going to filter out the negative values
-order_df = order_df %>% filter(order_df$carrier_delay > 0 & order_df$carrier_delay <800)
+olist_df = olist_df %>% filter(olist_df$carrier_delay > 0 & olist_df$carrier_delay <800)
 
-boxplot(order_df["carrier_delay"],main = "carrier delay in hours")
+boxplot(olist_df["carrier_delay"],main = "carrier delay in hours")
 
 
 # order_delay is the time difference of the actual delivery time - the expected delivery date
-order_df["order_delay"] = difftime(order_df$order_estimated_delivery_date ,order_df$order_delivered_customer_date,units="days")
-boxplot(order_df['order_delay'], main="order delayed in days")
+olist_df["order_delay"] = difftime(olist_df$order_estimated_delivery_date ,olist_df$order_delivered_customer_date,units="days")
+boxplot(olist_df['order_delay'], main="order delayed in days")
 # I will consider +50 and -150 days as outliers and remove them to get more precise models
 
-order_df = order_df %>% filter(order_df$order_delay > -150 & order_df$order_delay <50)
-boxplot(order_df['order_delay'], main="order delayed in days")
+olist_df = olist_df %>% filter(olist_df$order_delay > -150 & olist_df$order_delay <50)
+boxplot(olist_df['order_delay'], main="order delayed in days")
 
 
  
-order_df['late_delivery'] <- ifelse(order_df['order_delay']  <= 0,"no","yes")
+olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  <= 0,"no","yes")
 
-table(order_df['late_delivery']) / nrow(order_df['late_delivery']) *100
-summary(order_df)
+table(olist_df['late_delivery']) / nrow(olist_df['late_delivery']) *100
+summary(olist_df)
 
-ggplot(data=order_df,aes(x=late_delivery))+
+ggplot(data=olist_df,aes(x=late_delivery))+
   geom_bar(stat = "count")
 
 # par(mfrow=c(1,2))
 
-colnames(order_df)
-prop.table(table(order_df$late_delivery))
+colnames(olist_df)
+prop.table(table(olist_df$late_delivery))
 
 
 
@@ -124,13 +126,13 @@ prop.table(table(order_df$late_delivery))
 # Sample the indices
 # Create a new dataset with the sampled indices
 
-Yes <- which(order_df$late_delivery == "yes")
-No <- which(order_df$late_delivery == "no")
+Yes <- which(olist_df$late_delivery == "yes")
+No <- which(olist_df$late_delivery == "no")
 length(No)
 
 
 no_sampled_index <- sample(Yes,length(No))
-df_balanced <- order_df[c(no_sampled_index,No),]
+df_balanced <- olist_df[c(no_sampled_index,No),]
 
 table(df_balanced$late_delivery)
 
@@ -158,20 +160,29 @@ test_df$order_delay <- NULL
 
 colnames(train_df)
 
-glm.model = glm(data = df_balanced,late_delivery~.,family = binomial())
+model <- rpart(late_delivery~.,data = train_df,method = "class")
+summary(model)
+
+rpart.plot(model)
 
 
-summary(glm.model)
+pred_ = predict(model,test_df,type = "class")
+acc = sum(pred_ == test_df$late_delivery)/nrow(test_df)
+print(acc)
 
-?glm
+conf_matrix <- table(test_df$late_delivery,pred_)
+conf_matrix
+typeof(conf_matrix)
+
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+print(accuracy)
 
 
 
-
-head(order_df$order_delay)
-nrow(order_df$order_delay)
-nrow(order_df$carrier_delivered_interval)
-plot(order_df$carrier_delay,order_df$order_delay) 
+head(olist_df$order_delay)
+nrow(olist_df$order_delay)
+nrow(olist_df$carrier_delivered_interval)
+plot(olist_df$carrier_delay,olist_df$order_delay) 
 
 
 summary(orders_dataset)
