@@ -217,7 +217,7 @@ df_balanced <- olist_df[c(no_sampled_index,Yes),]
 table(df_balanced$late_delivery)
 # write.csv(df_balanced,"./db/df_balanced.csv", row.names = FALSE)
 
-##### testing and splitting datasets code #################
+##### ___________________ testing and splitting balanced_df datasets code__________ #################
 
 
 set.seed(3456)
@@ -234,12 +234,11 @@ test_df$order_delay <- NULL
 #   geom_bar(stat = "count")
 
 
-################## modeling_part ############################
+################## modeling_part with balanced_df ############################
 ###################### rpart #################################
 
-colnames(train_df)
 
-model <- rpart(late_delivery~.,data = train_df,method = "class")
+model_balanced <- rpart(late_delivery~.,data = train_df,method = "class")
 # summary(model)
 
 # rpart.plot(model)
@@ -251,17 +250,53 @@ print(acc)
 
 conf_matrix <- table(test_df$late_delivery,pred_)
 conf_matrix
-typeof(conf_matrix)
+
 
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 print(accuracy)
 
+# conf_matrix
+# pred_
+#       no  yes
+# no  1164  602
+# yes  484 1282
+# accuracy: 0.6925255
 
 
-head(olist_df$order_delay)
-nrow(olist_df$order_delay)
-nrow(olist_df$carrier_delivered_interval)
-plot(olist_df$carrier_delay,olist_df$order_delay) 
+##### _____________________testing and splitting with olist_df __________ #################
 
 
-summary(orders_dataset)
+set.seed(3456)
+partion_index <- createDataPartition(olist_df$late_delivery, p = .8,
+                                     list = FALSE,
+                                     times = 1)
+train_df <-olist_df[partion_index,]
+test_df <-olist_df[-partion_index,]
+
+train_df$order_delay <- NULL
+test_df$order_delay <- NULL 
+
+# ggplot(data=model_df,aes(x=late_delivery))+
+#   geom_bar(stat = "count")
+
+
+################## modeling_part with balanced_df ############################
+###################### rpart #################################
+
+
+model_df <- rpart(late_delivery~.,data = train_df,method = "class")
+summary(model_df)
+
+# rpart.plot(model)
+
+
+pred_ = predict(model_df,test_df,type = "class")
+acc = sum(pred_ == test_df$late_delivery)/nrow(test_df)
+print(acc)
+
+conf_matrix <- table(test_df$late_delivery,pred_)
+conf_matrix
+typeof(conf_matrix)
+
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+print(accuracy)
