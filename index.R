@@ -244,7 +244,7 @@ model_balanced <- rpart(late_delivery~.,data = train_df,method = "class")
 # rpart.plot(model)
 
 
-pred_ = predict(model,test_df,type = "class")
+pred_ = predict(model_balanced,test_df,type = "class")
 acc = sum(pred_ == test_df$late_delivery)/nrow(test_df)
 print(acc)
 
