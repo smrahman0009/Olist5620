@@ -215,7 +215,7 @@ no_sampled_index <- sample(No,length(Yes))
 df_balanced <- olist_df[c(no_sampled_index,Yes),]
 
 table(df_balanced$late_delivery)
-# write.csv(df_balanced,"./db/df_balanced.csv", row.names = FALSE)
+# write.csv(df_balanced,"./db/olist_df_cleaned.csv", row.names = FALSE)
 
 ##### ___________________ testing and splitting balanced_df datasets code__________ #################
 
@@ -239,7 +239,7 @@ test_df$order_delay <- NULL
 
 
 model_balanced <- rpart(late_delivery~.,data = train_df,method = "class")
-# summary(model)
+summary(model)
 
 # rpart.plot(model)
 
@@ -261,6 +261,84 @@ print(accuracy)
 # no  1164  602
 # yes  484 1282
 # accuracy: 0.6925255
+
+
+##### ___________________ testing and splitting balanced_df datasets code__________ #################
+
+selected_col = c("customer_city","order_approved_at","order_delivered_carrier_date","shipping_limit_date","order_purchase_timestamp",
+                 "order_estimated_delivery_date","customer_state","order_delivered_customer_date","customer_zip_code_prefix","carrier_delay",
+                 "freight_value","seller_city","product_category_name","late_delivery")
+df_selected = df_balanced[,selected_col]
+
+
+set.seed(3456)
+partion_index <- createDataPartition(df_selected$late_delivery, p = .8,
+                                     list = FALSE,
+                                     times = 1)
+train_df <-df_selected[partion_index,]
+test_df <-df_selected[-partion_index,]
+
+train_df$order_delay <- NULL
+test_df$order_delay <- NULL 
+
+# ggplot(data=model_df,aes(x=late_delivery))+
+#   geom_bar(stat = "count")
+
+
+################## modeling_part with balanced_df ############################
+###################### rpart #################################
+
+
+model_selected <- rpart(late_delivery~.,data = train_df,method = "class")
+summary(model_selected)
+
+# rpart.plot(model)
+
+
+pred_ = predict(model_selected,test_df,type = "class")
+acc = sum(pred_ == test_df$late_delivery)/nrow(test_df)
+print(acc)
+
+conf_matrix <- table(test_df$late_delivery,pred_)
+conf_matrix
+
+
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+print(accuracy)
+
+# conf_matrix
+# pred_
+#       no  yes
+# no  1293  473
+# yes  537 1229
+
+# 
+# print(accuracy)
+# 0.714043
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ##### _____________________testing and splitting with olist_df __________ #################
@@ -300,3 +378,11 @@ typeof(conf_matrix)
 
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 print(accuracy)
+
+# > print(acc)
+# [1] 0.9248706
+# > conf_matrix
+# pred_
+# no   yes
+# no  20618   217
+# yes  1481   285
