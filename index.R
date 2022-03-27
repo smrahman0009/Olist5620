@@ -9,11 +9,12 @@ library(rpart)
 library(rpart.plot)
 
 ######################## Loading && JOINING ALL OLIST DATASETS ##############################
-orders_dataset <- read.csv(file ='./db/orders_dataset.csv',header=TRUE)
-customers_dataset <- read.csv(file ='./db/customers_dataset.csv',header=TRUE)
-order_items_dataset <- read.csv(file ='./db/order_items_dataset.csv',header=TRUE)
-products_dataset <- read.csv(file ='./db/products_dataset.csv',header=TRUE)
-sellers_dataset <- read.csv(file ='./db/sellers_dataset.csv',header=TRUE)
+# orders_dataset <- read.csv(file ='./db/orders_dataset.csv',header=TRUE)
+# customers_dataset <- read.csv(file ='./db/customers_dataset.csv',header=TRUE)
+# order_items_dataset <- read.csv(file ='./db/order_items_dataset.csv',header=TRUE)
+# products_dataset <- read.csv(file ='./db/products_dataset.csv',header=TRUE)
+# sellers_dataset <- read.csv(file ='./db/sellers_dataset.csv',header=TRUE)
+# order_payments_dataset <- read.csv(file ='./db/order_payments_dataset.csv',header=TRUE)
 
 
 # geolocations datasets is not required as sellers_dataset and products_dataset already contains sellers and customers geolocations. 
@@ -22,38 +23,58 @@ sellers_dataset <- read.csv(file ='./db/sellers_dataset.csv',header=TRUE)
 ## merge_syntax merge(x, y, by.x, by.y,all.x,all.y, sort = TRUE)
 
 # olist_df_test = merge(x=olist_df_test,y=sellers_dataset,by="seller_id")
+# olist_df_test = merge(x=olist_df_test,y=order_payments_dataset,by="order_id")
 
+########################## __________SAVE_THE_MERGE__DATASET___________________
 # save the new merged olist datasets as olist_df_test
-write.csv(olist_df_test,"./db/olist_df_test.csv", row.names = FALSE)
-
-olist_df_test_2 <- read.csv(file ='./db/olist_df_test.csv',header=TRUE)
+# write.csv(olist_df_test,"./db/olist_df.csv", row.names = FALSE)
 
 
 
-head(olist_df_test_2,4)
+######################### __________LOAD_THE_MERGE_DATASET____##################
+
+olist_df_test <- read.csv(file ='./db/olist_df.csv',header=TRUE)
+
+colnames(olist_df_test)
+head(olist_df_test,4)
 # Checking the instances of null values in the newly created dataset. 
-is.null(olist_df_test_2)
+is.null(olist_df_test)
+######################### __________CHECK_NUMBER_OF_ROWS_COLUMNS_NULL_VALUES____##################
 
-summary(olist_df_test_2)
+summary(olist_df_test)
 nrow(olist_df_test)
 ncol(olist_df_test)
 colnames(olist_df_test)
 
 
 
-######################################################################
 
-colnames(orders_dataset)
+#########################__________DATA_PREPERATIONS__/___REMOVE_UNNECESARY_COLUMNS____#############################################
+
+colnames(olist_df_test)
+unique(olist_df_test['order_item_id'])
+olist_df_test['product_name_lenght']
+
+
+
+
+# #### I am removing the seller_id,product_id,order_id,customer_id,customer_unique_id,order_item_id,product_name_lenght,product_description_lenght,product_photos_qty
+
+olist_df_test['seller_id'] <- NULL
+olist_df_test['product_id'] <- NULL
+olist_df_test['order_id'] <- NULL
+olist_df_test['customer_id'] <- NULL
+olist_df_test['customer_unique_id'] <- NULL
+olist_df_test['order_item_id'] <- NULL
+olist_df_test['product_name_lenght'] <- NULL
+olist_df_test['product_description_lenght'] <- NULL
+olist_df_test['product_photos_qty'] <- NULL
+
+colnames(olist_df_test)
 # order_id and customer_id is not necessary 
-olist_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
+# olist_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
 
 
-
-summary(olist_df)
-sum(is.na(olist_df))
-mean(is.na(olist_df))
-olist_df = na.omit(olist_df)
-summary(olist_df)
 
 
 # order_estimated_delivery_date = Shows the estimated delivery date that was informed to customer at the purchase moment.
