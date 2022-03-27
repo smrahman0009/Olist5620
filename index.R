@@ -33,57 +33,73 @@ library(rpart.plot)
 
 ######################### __________LOAD_THE_MERGE_DATASET____##################
 
-olist_df_test <- read.csv(file ='./db/olist_df.csv',header=TRUE)
+olist_df <- read.csv(file ='./db/olist_df.csv',header=TRUE)
 
-colnames(olist_df_test)
-head(olist_df_test,4)
+colnames(olist_df)
+head(olist_df,4)
 # Checking the instances of null values in the newly created dataset. 
 is.null(olist_df_test)
 ######################### __________CHECK_NUMBER_OF_ROWS_COLUMNS_NULL_VALUES____##################
 
-summary(olist_df_test)
-nrow(olist_df_test)
-ncol(olist_df_test)
-colnames(olist_df_test)
+summary(olist_df)
+nrow(olist_df)
+ncol(olist_df)
+colnames(olist_df)
+
+
+
+# number of row is 117601
+# number of col is 33
+
 
 
 
 
 #########################__________DATA_PREPERATIONS__/___REMOVE_UNNECESARY_COLUMNS____#############################################
 
-colnames(olist_df_test)
-unique(olist_df_test['order_item_id'])
-olist_df_test['product_name_lenght']
+# unique(olist_df_test['order_item_id'])
+# olist_df_test['product_name_lenght']
 
 
 
 
 # #### I am removing the seller_id,product_id,order_id,customer_id,customer_unique_id,order_item_id,product_name_lenght,product_description_lenght,product_photos_qty
 
-olist_df_test['seller_id'] <- NULL
-olist_df_test['product_id'] <- NULL
-olist_df_test['order_id'] <- NULL
-olist_df_test['customer_id'] <- NULL
-olist_df_test['customer_unique_id'] <- NULL
-olist_df_test['order_item_id'] <- NULL
-olist_df_test['product_name_lenght'] <- NULL
-olist_df_test['product_description_lenght'] <- NULL
-olist_df_test['product_photos_qty'] <- NULL
+olist_df['seller_id'] <- NULL
+olist_df['product_id'] <- NULL
+olist_df['order_id'] <- NULL
+olist_df['customer_id'] <- NULL
+olist_df['customer_unique_id'] <- NULL
+olist_df['order_item_id'] <- NULL
+olist_df['product_name_lenght'] <- NULL
+olist_df['product_description_lenght'] <- NULL
+olist_df['product_photos_qty'] <- NULL
 
-colnames(olist_df_test)
+olist_df['product_weight_g'] <- NULL
+olist_df['product_length_cm'] <- NULL
+olist_df['product_height_cm'] <- NULL
+olist_df['product_width_cm'] <- NULL
+
+
+################### _________SAVE_CLENED_VERSION_OF_OLIST_DF______________ #########
+# write.csv(olist_df,"./db/olist_df_cleaned.csv", row.names = FALSE)
+
 # order_id and customer_id is not necessary 
 # olist_df <- orders_dataset[,c("order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date")]
-
 
 
 
 # order_estimated_delivery_date = Shows the estimated delivery date that was informed to customer at the purchase moment.
 # order_delivered_customer_date = Shows the actual order delivery date to the customer.
 # order_delivered_carrier_date = Shows the order posting timestamp. When it was handled to the logistic partner.
+# shipping_limit_date = Shows the seller shipping limit date for handling the order over to the logistic partner.  ##
 # order_approved_at = Shows the payment approval timestamp.
 # order_purchase_timestamp = Shows the purchase timestamp.
 
 
+# payment_sequential = a customer may pay an order with more than one payment method. If he does so, a sequence will be created to
+# payment_type = method of payment chosen by the customer.
+# payment_installments = number of installments chosen by the customer.
 
 head(olist_df)
 unique(olist_df["order_status"])
@@ -111,10 +127,23 @@ head(olist_df)
 # Now I am going to convert the Date related columns to DateTime format in olist_df dataframe 
 olist_df$order_purchase_timestamp <- as.POSIXct(olist_df$order_purchase_timestamp, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_approved_at <- as.POSIXct(olist_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
-olist_df$order_approved_at <- as.POSIXct(olist_df$order_approved_at, format = "%Y-%m-%d %H:%M:%S")
+olist_df$shipping_limit_date <- as.POSIXct(olist_df$shipping_limit_date, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_delivered_carrier_date <- as.POSIXct(olist_df$order_delivered_carrier_date, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_delivered_customer_date <- as.POSIXct(olist_df$order_delivered_customer_date, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_estimated_delivery_date <- as.POSIXct(olist_df$order_estimated_delivery_date, format = "%Y-%m-%d %H:%M:%S")
+
+
+############################ ______CONVERTING_CHAR_TO_FACTOR______ ######################
+
+olist_df$late_delivery = as.factor(olist_df$late_delivery)
+olist_df$customer_city = as.factor(olist_df$customer_city)
+olist_df$customer_state = as.factor(olist_df$customer_state)
+olist_df$product_category_name = as.factor(olist_df$product_category_name)
+olist_df$seller_city = as.factor(olist_df$seller_city)
+olist_df$seller_state = as.factor(olist_df$seller_state)
+olist_df$payment_type  = as.factor(olist_df$payment_type)
+
+
 
 head(olist_df)
 
@@ -182,13 +211,12 @@ No <- which(olist_df$late_delivery == "no")
 length(No)
 
 
-no_sampled_index <- sample(Yes,length(No))
-df_balanced <- olist_df[c(no_sampled_index,No),]
+no_sampled_index <- sample(No,length(Yes))
+df_balanced <- olist_df[c(no_sampled_index,Yes),]
 
 table(df_balanced$late_delivery)
+# write.csv(df_balanced,"./db/df_balanced.csv", row.names = FALSE)
 
-
-df_balanced$late_delivery = as.factor(df_balanced$late_delivery)
 ##### testing and splitting datasets code #################
 
 
@@ -212,9 +240,9 @@ test_df$order_delay <- NULL
 colnames(train_df)
 
 model <- rpart(late_delivery~.,data = train_df,method = "class")
-summary(model)
+# summary(model)
 
-rpart.plot(model)
+# rpart.plot(model)
 
 
 pred_ = predict(model,test_df,type = "class")
