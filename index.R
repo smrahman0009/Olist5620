@@ -200,6 +200,7 @@ prop.table(table(olist_df$late_delivery))
 
 
 
+
 # ################### _____________UNDERSAMPLING_________________   #####################################
 
 # Index of the values with Yes and NO
@@ -314,6 +315,16 @@ print(accuracy)
 # 
 # print(accuracy)
 # 0.714043
+
+# ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
+####### __________ FEATURE__IMPORTANCE__
+
+
+
+
+
+
+
 ############ ___________plotting_confusion_matrix________ ###########
 
 
