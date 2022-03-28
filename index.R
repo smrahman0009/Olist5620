@@ -192,9 +192,10 @@ olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  < 0,"yes","no")
 
 summary(olist_df)
 
-ggplot(data=olist_df,aes(x=late_delivery))+
+ggplot(data=olist_df,aes(x=late_delivery,color="#3FC1C9"))+
   geom_bar(stat = "count")
 
+nrow(olist_df)
 # par(mfrow=c(1,2))
 
 colnames(olist_df)
@@ -202,6 +203,7 @@ prop.table(table(olist_df$late_delivery))
 # ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
 # top-5 customer_city
 
+# Visualizations of top n cutomer city based on product order. 
 top_n_c_city <- olist_df %>%
   count(customer_city) %>%
   top_n(5) %>%
@@ -215,16 +217,18 @@ olist_df %>%
   geom_bar()
 
 
-top_n_c_city <- olist_df %>%
-  count(customer_city) %>%
+# Visualizations of top n seller city based on product order. 
+
+top_n_seller_city <- olist_df %>%
+  count(seller_city) %>%
   top_n(5) %>%
-  arrange(5, customer_city) %>%
-  mutate(customer_city = factor(customer_city, levels = unique(customer_city)))
+  arrange(5, seller_city) %>%
+  mutate(seller_city = factor(seller_city, levels = unique(seller_city)))
 
 olist_df %>%
-  filter(customer_city %in% top_n_c_city$customer_city) %>%
-  mutate(customer_city = factor(customer_city, levels = levels(top_n_c_city$customer_city))) %>%
-  ggplot(aes(x = customer_city, fill = late_delivery)) +
+  filter(seller_city %in% top_n_seller_city$seller_city) %>%
+  mutate(seller_city = factor(seller_city, levels = levels(top_n_seller_city$seller_city))) %>%
+  ggplot(aes(x = seller_city, fill = late_delivery)) +
   geom_bar()
 
 
