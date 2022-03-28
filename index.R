@@ -215,6 +215,11 @@ length(No)
 no_sampled_index <- sample(No,length(Yes))
 df_balanced <- olist_df[c(no_sampled_index,Yes),]
 
+# Delet the actual delivery date and the order_delay features
+
+df_balanced$order_delivered_customer_date <- NULL
+df_balanced$order_delay <- NULL
+
 table(df_balanced$late_delivery)
 # write.csv(df_balanced,"./db/olist_df_cleaned.csv", row.names = FALSE)
 
@@ -317,9 +322,20 @@ print(accuracy)
 # 0.714043
 
 # ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
-####### __________ FEATURE__IMPORTANCE__
+####### __________ FEATURE__feature_importanceORTANCE__
 
-
+model_bl_ftr_feature_importance <- data.frame(feature_importance = model_balanced$variable.importance)
+df2 <- model_bl_ftr_feature_importance %>% 
+  tibble::rownames_to_column() %>% 
+  dplyr::rename("variable" = rowname) %>% 
+  dplyr::arrange(feature_importance) %>%
+  dplyr::mutate(variable = forcats::fct_inorder(variable))
+ggplot2::ggplot(df2) +
+  geom_col(aes(x = variable, y = feature_importance),
+           col = "#3FC1C9", show.legend = F) +
+  coord_flip() +
+  scale_fill_grey() +
+  theme_bw()
 
 
 
