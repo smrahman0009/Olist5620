@@ -315,11 +315,22 @@ print(accuracy)
 # 
 # print(accuracy)
 # 0.714043
+############ ___________plotting_confusion_matrix________ ###########
 
 
 
 
 
+confusion_matrix <- as.data.frame(table(test_df$late_delivery,pred_))
+
+ggplot(data = confusion_matrix,
+       mapping = aes(x = "ar1",
+                     y = "Var2")) +
+  geom_tile(aes(fill = Freq)) +
+  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+  scale_fill_gradient(low = "blue",
+                      high = "red",
+                      trans = "log") # if your results aren't quite as clear as the above example
 
 
 
