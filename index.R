@@ -1,12 +1,14 @@
 # install.packages("ggplot2")
 # install.packages("tidyverse")
 # install.packages("ROSE")
+# install.packages("plyr")
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(caret)
 library(rpart)
 library(rpart.plot)
+# library(plyr)
 
 ######################## Loading && JOINING ALL OLIST DATASETS ##############################
 # orders_dataset <- read.csv(file ='./db/orders_dataset.csv',header=TRUE)
@@ -187,7 +189,7 @@ boxplot(olist_df['order_delay'], main="order delayed in days")
  
 olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  < 0,"yes","no")
 
-table(olist_df['late_delivery']) / nrow(olist_df['late_delivery']) *100
+
 summary(olist_df)
 
 ggplot(data=olist_df,aes(x=late_delivery))+
@@ -197,6 +199,36 @@ ggplot(data=olist_df,aes(x=late_delivery))+
 
 colnames(olist_df)
 prop.table(table(olist_df$late_delivery))
+# ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
+# top-5 customer_city
+
+top_n_c_city <- olist_df %>%
+  count(customer_city) %>%
+  top_n(5) %>%
+  arrange(5, customer_city) %>%
+  mutate(customer_city = factor(customer_city, levels = unique(customer_city)))
+
+olist_df %>%
+  filter(customer_city %in% top_n_c_city$customer_city) %>%
+  mutate(customer_city = factor(customer_city, levels = levels(top_n_c_city$customer_city))) %>%
+  ggplot(aes(x = customer_city, fill = late_delivery)) +
+  geom_bar()
+
+
+top_n_c_city <- olist_df %>%
+  count(customer_city) %>%
+  top_n(5) %>%
+  arrange(5, customer_city) %>%
+  mutate(customer_city = factor(customer_city, levels = unique(customer_city)))
+
+olist_df %>%
+  filter(customer_city %in% top_n_c_city$customer_city) %>%
+  mutate(customer_city = factor(customer_city, levels = levels(top_n_c_city$customer_city))) %>%
+  ggplot(aes(x = customer_city, fill = late_delivery)) +
+  geom_bar()
+
+
+
 
 
 
@@ -321,7 +353,7 @@ print(accuracy)
 # print(accuracy)
 # 0.714043
 
-# ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
+
 ####### __________ FEATURE__feature_importanceORTANCE__
 
 model_bl_ftr_feature_importance <- data.frame(feature_importance = model_balanced$variable.importance)
@@ -342,11 +374,6 @@ ggplot2::ggplot(df2) +
 
 
 ############ ___________plotting_confusion_matrix________ ###########
-
-
-
-
-
 
 
 table <- data.frame(confusionMatrix(test_df$late_delivery,pred_)$table)
