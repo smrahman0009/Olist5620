@@ -266,7 +266,7 @@ print(accuracy)
 ##### ___________________ testing and splitting balanced_df datasets code__________ #################
 
 selected_col = c("customer_city","order_approved_at","order_delivered_carrier_date","shipping_limit_date","order_purchase_timestamp",
-                 "order_estimated_delivery_date","customer_state","order_delivered_customer_date","customer_zip_code_prefix","late_delivery")
+                 "order_estimated_delivery_date","customer_state","customer_zip_code_prefix","late_delivery")
 df_selected = df_balanced[,selected_col]
 
 
