@@ -1,0 +1,60 @@
+Question of interest? 
+shipping_limit_date
+
+
+Deleted coluns
+seller_id
+product_id 
+order_id
+customer_id
+customer_unique_id
+order_item_id
+product_name_lenght
+product_description_lenght
+product_photos_qty 
+
+product_weight_g
+product_length_cm
+product_height_cm
+product_width_cm
+
+-----------------------------------
+customer_city
+customer_state 
+product_category_name
+seller_city
+seller_state 
+payment_type 
+-------------------------------------
+important_columns acccording to rpart model:- 
+
+customer_city
+order_approved_at
+order_delivered_carrier_date
+shipping_limit_date
+order_purchase_timestamp
+order_estimated_delivery_date
+customer_state
+order_delivered_customer_date
+customer_zip_code_prefix
+carrier_delay
+freight_value
+seller_city
+product_category_name
+
+------------------------------------------
+columns need to be explored:
+----------------------------
+"customer_city",
+"order_approved_at",
+"order_delivered_carrier_date",
+"shipping_limit_date",
+"order_purchase_timestamp",
+"order_estimated_delivery_date",
+"customer_state",
+"order_delivered_customer_date",
+"customer_zip_code_prefix",
+"late_delivery"
+---------------------------------------------
+After performing the modeling part, the rpart model suggests that the following features are importants, those are mainly customer's 
+geographical and order related informations. The columns are following: 

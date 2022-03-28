@@ -200,7 +200,7 @@ prop.table(table(olist_df$late_delivery))
 
 
 
-# ################### Undersampling   #####################################
+# ################### _____________UNDERSAMPLING_________________   #####################################
 
 # Index of the values with Yes and NO
 # Sample the indices
@@ -266,8 +266,7 @@ print(accuracy)
 ##### ___________________ testing and splitting balanced_df datasets code__________ #################
 
 selected_col = c("customer_city","order_approved_at","order_delivered_carrier_date","shipping_limit_date","order_purchase_timestamp",
-                 "order_estimated_delivery_date","customer_state","order_delivered_customer_date","customer_zip_code_prefix","carrier_delay",
-                 "freight_value","seller_city","product_category_name","late_delivery")
+                 "order_estimated_delivery_date","customer_state","order_delivered_customer_date","customer_zip_code_prefix","late_delivery")
 df_selected = df_balanced[,selected_col]
 
 
@@ -321,27 +320,27 @@ print(accuracy)
 
 
 
-confusion_matrix <- as.data.frame(table(test_df$late_delivery,pred_))
 
-ggplot(data = confusion_matrix,
-       mapping = aes(x = "ar1",
-                     y = "Var2")) +
-  geom_tile(aes(fill = Freq)) +
-  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
-  scale_fill_gradient(low = "blue",
-                      high = "red",
-                      trans = "log") # if your results aren't quite as clear as the above example
 
+table <- data.frame(confusionMatrix(test_df$late_delivery,pred_)$table)
+
+
+plotTable <- table %>%
+  mutate(correct_incorrect  = ifelse(table$Prediction == table$Reference, "correct", "incorrect")) %>%
+  group_by(Reference) %>%
+  mutate(prop = Freq/sum(Freq))
 
 
 
 
 
-
-
-
-
-
+# fill alpha relative to sensitivity/specificity by proportional outcomes within reference groups (see dplyr code above as well as original confusion matrix for comparison)
+ggplot(data = plotTable, mapping = aes(x = Reference, y = Prediction, fill = correct_incorrect , alpha = prop)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), vjust = .5, fontface  = "bold", alpha = 1) +
+  scale_fill_manual(values = c(correct = "#364F6B", incorrect = "#FC5185")) +
+  theme_bw() +
+  xlim(rev(levels(table$Reference)))
 
 
 
