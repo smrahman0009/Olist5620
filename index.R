@@ -2,12 +2,16 @@
 # install.packages("tidyverse")
 # install.packages("ROSE")
 # install.packages("plyr")
+# install.packages('pROc')
+# install.packages('rpart')  
+# install.packages("tibbletime")
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(caret)
 library(rpart)
 library(rpart.plot)
+library(tibbletime)
 # library(plyr)
 
 ######################## Loading && JOINING ALL OLIST DATASETS ##############################
@@ -192,8 +196,6 @@ olist_df['late_delivery'] <- ifelse(olist_df['order_delay']  < 0,"yes","no")
 
 summary(olist_df)
 
-ggplot(data=olist_df,aes(x=late_delivery,color="#3FC1C9"))+
-  geom_bar(stat = "count")
 
 nrow(olist_df)
 # par(mfrow=c(1,2))
@@ -201,6 +203,9 @@ nrow(olist_df)
 colnames(olist_df)
 prop.table(table(olist_df$late_delivery))
 # ################### _____________OLIST_DF_VISUALAZATIONS_________________   #####################################
+
+ggplot(data=olist_df,aes(x=late_delivery))+
+  geom_bar(stat = "count")
 # top-5 customer_city
 
 # Visualizations of top n cutomer city based on product order. 
@@ -231,10 +236,19 @@ olist_df %>%
   ggplot(aes(x = seller_city, fill = late_delivery)) +
   geom_bar()
 
-
-
-
-
+# filtered_olist_df = olist_df %>% filter(olist_df$order_delay >=0)
+# 
+# 
+# 
+# filtered_olist_df = filter(filtered_olist_df, order_delivered_carrier_date >= as.Date("2017-01-01"), order_delivered_carrier_date <= as.Date("2017-6-1"))
+# nrow(filtered_olist_df)
+# 
+# head(olist_df)
+# 
+# plot(filtered_olist_df$carrier_delay,filtered_olist_df$order_delay,xlab = "carrier delay",ylab = "order delay")
+# 
+# 
+# plot(filtered_olist_df$approval_delay,filtered_olist_df$order_delay,xlab = "approval delay",ylab = "order delay")
 
 
 # ################### _____________UNDERSAMPLING_________________   #####################################
