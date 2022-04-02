@@ -6,6 +6,8 @@
 # install.packages('rpart')  
 # install.packages("tibbletime")
 # install.packages("lessR")
+# install.packages("sqldf")
+
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -14,6 +16,7 @@ library(rpart)
 library(rpart.plot)
 library(tibbletime)
 library(lessR)
+library(sqldf)
 # library(plyr)
 
 ######################## Loading && JOINING ALL OLIST DATASETS ##############################
@@ -240,7 +243,7 @@ olist_df %>%
 
 
 colnames(olist_df)
-
+nrow(olist_df)
 
 late_delivery_cat = table(olist_df$late_delivery)
 
@@ -257,13 +260,34 @@ PieChart(late_delivery_cat,data=olist_df,hole=0,fill = cols,labels_cex = 0.6)
 
 
 
+common_city_ <- intersect(olist_df$customer_city, olist_df$seller_city)  
+
+olist_df_c_c = olist_df %>% filter(
+  customer_city %in% common_city_
+)
+
+nrow(olist_df_c_c)
+
+cols_c <-  hcl.colors(length(levels(olist_df_c_c$late_delivery)), "Temps")
+late_delivery_cat_c =  table(olist_df_c_c$late_delivery)
+
+PieChart(late_delivery_cat_c,data=olist_df_c_c,hole=0,fill = cols_c,labels_cex = 0.6)
+
+# late delivery status is same if both the customer and seller is from same city 
 
 
 
+common_state_ <- intersect(olist_df$customer_state, olist_df$seller_state)  
 
+olist_df_c_s = olist_df %>% filter(
+  customer_state %in% common_state_
+)
+cols_c <-  hcl.colors(length(levels(olist_df_c_s$late_delivery)), "OrYel")
+late_delivery_cat_s =  table(olist_df_c_s$late_delivery)
 
+PieChart(late_delivery_cat_s,data=olist_df_c_s,hole=0,fill = cols_c,labels_cex = 0.6)
 
-
+# late delivery status is same if both the customer and seller is from same city 
 
 
 
