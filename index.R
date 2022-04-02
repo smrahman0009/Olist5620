@@ -5,6 +5,7 @@
 # install.packages('pROc')
 # install.packages('rpart')  
 # install.packages("tibbletime")
+# install.packages("lessR")
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -12,6 +13,7 @@ library(caret)
 library(rpart)
 library(rpart.plot)
 library(tibbletime)
+library(lessR)
 # library(plyr)
 
 ######################## Loading && JOINING ALL OLIST DATASETS ##############################
@@ -136,7 +138,7 @@ olist_df$order_approved_at <- as.POSIXct(olist_df$order_approved_at, format = "%
 olist_df$shipping_limit_date <- as.POSIXct(olist_df$shipping_limit_date, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_delivered_carrier_date <- as.POSIXct(olist_df$order_delivered_carrier_date, format = "%Y-%m-%d %H:%M:%S")
 olist_df$order_delivered_customer_date <- as.POSIXct(olist_df$order_delivered_customer_date, format = "%Y-%m-%d %H:%M:%S")
-olist_df$order_estimated_delivery_date <- as.POSIXct(olist_df$order_estimated_delivery_date, format = "%Y-%m-%d %H:%M:%S")
+olist_df$order_estimated_delivery_date <- as.POSIXct(olist_df$order_estimated_delivery_date, format = "%Y-%m-%d")
 
 
 ############################ ______CONVERTING_CHAR_TO_FACTOR______ ######################
@@ -236,19 +238,35 @@ olist_df %>%
   ggplot(aes(x = seller_city, fill = late_delivery)) +
   geom_bar()
 
-# filtered_olist_df = olist_df %>% filter(olist_df$order_delay >=0)
-# 
-# 
-# 
-# filtered_olist_df = filter(filtered_olist_df, order_delivered_carrier_date >= as.Date("2017-01-01"), order_delivered_carrier_date <= as.Date("2017-6-1"))
-# nrow(filtered_olist_df)
-# 
-# head(olist_df)
-# 
-# plot(filtered_olist_df$carrier_delay,filtered_olist_df$order_delay,xlab = "carrier delay",ylab = "order delay")
-# 
-# 
-# plot(filtered_olist_df$approval_delay,filtered_olist_df$order_delay,xlab = "approval delay",ylab = "order delay")
+
+colnames(olist_df)
+
+
+late_delivery_cat = table(olist_df$late_delivery)
+
+
+pie(late_delivery_cat,col = hcl.colors(length(late_delivery_cat), "BluYl"))
+
+cols <-  hcl.colors(length(levels(olist_df$late_delivery)), "Fall")
+
+PieChart(late_delivery_cat,data=olist_df,hole=0,fill = cols,labels_cex = 0.6)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ################### _____________UNDERSAMPLING_________________   #####################################
@@ -259,7 +277,7 @@ olist_df %>%
 
 Yes <- which(olist_df$late_delivery == "yes")
 No <- which(olist_df$late_delivery == "no")
-length(No)
+length(Yes)
 
 
 no_sampled_index <- sample(No,length(Yes))
